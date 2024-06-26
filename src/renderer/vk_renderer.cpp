@@ -1,7 +1,11 @@
 #include <vulkan/vulkan.h>
-#include <iostream>
 
-int main(){
+struct VkContext
+{
+    VkInstance instance;
+};
+
+bool vk_init(VkContext* context) {
     VkApplicationInfo app_info = {};
     app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     app_info.pApplicationName = "Pong";
@@ -11,11 +15,12 @@ int main(){
     instance_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instance_info.pApplicationInfo = &app_info;
 
-    VkInstance instance;
+    auto result = vkCreateInstance(&instance_info, 0, &context->instance);
+    if(result == VK_SUCCESS)
+    {
+        return true;
+    }
 
-    auto result = vkCreateInstance(&instance_info, 0, &instance);
-    if(result == VK_SUCCESS) 
-        std::cout << "Successfully created vulkan  instance" << std::endl;
-
-    return 0;
+    return false;
 }
+

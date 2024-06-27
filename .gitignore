@@ -1,0 +1,6 @@
+build.bat
+*.exe
+*.ilk
+*.obj
+*.pdb
+*.obj

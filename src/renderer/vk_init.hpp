@@ -1,3 +1,4 @@
+#pragma once
 #include <vulkan/vulkan.h>
 
 #ifndef VK_INIT_HPP_

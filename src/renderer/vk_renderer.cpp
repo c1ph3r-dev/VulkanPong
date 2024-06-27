@@ -39,6 +39,8 @@ struct VkContext
     VkSemaphore aquire_semaphore;
     VkSemaphore submit_semaphore;
 
+    VkFence fence;
+
     uint32_t swapchain_image_count;
     //TODO: Suballocation from Main Allocation
     VkImage swapchain_images[5];
@@ -219,14 +221,25 @@ bool vk_init(VkContext* context, void* window) {
         VK_CHECK(vkCreateSemaphore(context->device, &sema_info, 0, &context->submit_semaphore));
     }
 
+    // Fence
+    {
+        VkFenceCreateInfo fence_info = {};
+        fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;  // Automatically signalled on creation, wait until signaled when submitting commands
+        VK_CHECK(vkCreateFence(context->device, &fence_info, 0, &context->fence));
+    }
+
     return true;
 }
 
 bool vk_render(VkContext* context)
 {
     uint32_t img_idx;
-    vkWaitForFences(context->device, )
-    VK_CHECK(vkAcquireNextImageKHR(context->device, context->swapchain, 0, context->aquire_semaphore, 0, &img_idx));
+    
+
+    vkWaitForFences(context->device, 1, &context->fence, VK_TRUE, UINT64_MAX);
+    VK_CHECK(vkAcquireNextImageKHR(context->device, context->swapchain, UINT64_MAX, context->aquire_semaphore, VK_NULL_HANDLE, &img_idx));
+    vkResetFences(context->device, 1, &context->fence);
 
     VkCommandBuffer cmd;
     VkCommandBufferAllocateInfo alloc_info = {};

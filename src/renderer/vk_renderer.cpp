@@ -63,13 +63,13 @@ bool vk_init(VkContext* context, void* window) {
     app_info.pApplicationName = "Pong";
     app_info.pEngineName = "Ponggine";
 
-    char* extensions[] = {
+    const char* extensions[] = {
         VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
         VK_KHR_SURFACE_EXTENSION_NAME
     };
 
-    char* layers[] = {
+    const char* layers[] = {
         "VK_LAYER_KHRONOS_validation"
     };
 
@@ -158,7 +158,7 @@ bool vk_init(VkContext* context, void* window) {
         queue_info.queueCount = 1;
         queue_info.pQueuePriorities = &queue_priority;
 
-        char *extensions[] = {
+        const char *extensions[] = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
 

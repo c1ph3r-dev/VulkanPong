@@ -1,5 +1,3 @@
 *.exe
-*.ilk
 *.obj
-*.pdb
-*.obj
+main.*

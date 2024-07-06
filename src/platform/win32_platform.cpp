@@ -92,3 +92,45 @@ void platform_get_window_size(uint32_t* width, uint32_t* height)
     *width= rect.right - rect.left;
     *height = rect.bottom - rect.top;
 }
+
+char* platform_read_file(char* path, uint32_t* length)
+{
+    char* result = NULL;
+
+    auto file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+    if (file != INVALID_HANDLE_VALUE)
+    {
+        LARGE_INTEGER size;
+        if(GetFileSizeEx(file, &size))
+        {
+            *length = (uint32_t)size.QuadPart;
+            result = new char[*length];
+
+            DWORD bytes_read = 0;
+            if(ReadFile(file, result, *length, &bytes_read, 0))
+            {
+                // Success
+            }
+            else
+            {
+                // TODO: Assert
+                std::cerr << "ERROR: Could not read file" << std::endl;
+            }
+        }
+        else
+        {
+            // TODO: Assert
+            std::cerr << "ERROR: Could not get size of file" << std::endl;
+        }
+
+        CloseHandle(file);
+    }
+    else
+    {
+        // TODO: Assert
+        std::cerr << "ERROR: Could not open file" << std::endl;
+    }
+
+
+    return result;
+}

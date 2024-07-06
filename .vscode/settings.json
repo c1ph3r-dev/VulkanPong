@@ -4,6 +4,7 @@
         "${VULKAN_SDK}/Include"
     ],
     "files.associations": {
-        "xiosbase": "cpp"
+        "xiosbase": "cpp",
+        "xutility": "cpp"
     }
 }

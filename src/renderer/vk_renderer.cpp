@@ -1,20 +1,11 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_win32.h>
-#include <iostream>
 
 #include "dds_structs.hpp"
+#include "logger.hpp"
 
+#include "vk_utils.cpp"
 #include "vk_init.hpp"
-#include "vk_types.hpp"
-
-#define ArraySize(arr) sizeof((arr)) / sizeof((arr[0]))
-
-#define VK_CHECK(result)                        \
-    if(result != VK_SUCCESS) {                  \
-        std::cout << result << std::endl;       \
-        __debugbreak();                         \
-        return false;                           \
-    }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -23,7 +14,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
     void* pUserData
 )
 {
-    std::cout << "Validation Error: " << pCallbackData->pMessage << std::endl;
+    JONO_ASSERT(0, pCallbackData->pMessage);
     return false;
 }
 
@@ -455,85 +446,24 @@ bool vk_init(VkContext* context, void* window) {
 
     // Staging Buffer
     {
-        VkBufferCreateInfo buffer_info = {};
-        buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        buffer_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-        buffer_info.size = MB(1);
-
-        VK_CHECK(vkCreateBuffer(context->device, &buffer_info, VK_NULL_HANDLE, &context->staging_buffer.buffer));
-
-        VkMemoryAllocateInfo alloc_info = {};
-        alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        alloc_info.allocationSize = MB(1);
-
-        {
-            VkMemoryRequirements mem_reqs;
-            vkGetBufferMemoryRequirements(context->device, context->staging_buffer.buffer, &mem_reqs);
-
-            VkPhysicalDeviceMemoryProperties gpu_mem_props;
-            vkGetPhysicalDeviceMemoryProperties(context->gpu, &gpu_mem_props);
-
-            for(uint32_t i = 0; i < gpu_mem_props.memoryTypeCount; i++)
-            {
-                if(mem_reqs.memoryTypeBits & (1 << i) &&
-                (gpu_mem_props.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) ==
-                (VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
-                {
-                    alloc_info.memoryTypeIndex = i;
-                }
-            }
-        }
-
-        VK_CHECK(vkAllocateMemory(context->device, &alloc_info, VK_NULL_HANDLE, &context->staging_buffer.memory));
-        VK_CHECK(vkMapMemory(context->device, context->staging_buffer.memory, 0, MB(1), 0, &context->staging_buffer.data));
-        VK_CHECK(vkBindBufferMemory(context->device, context->staging_buffer.buffer, context->staging_buffer.memory, 0));
+        context->staging_buffer = vk_allocate_buffer(
+            context->device, 
+            context->gpu, 
+            MB(1), 
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
     }
 
     // Create Image
     {
         uint32_t file_size;
-        DDS_FILE* data = (DDS_FILE*)platform_read_file((char*)"assets/textures/cakez.DDS", &file_size);
-        uint32_t texture_size = data->header.Width * data->header.Height * 4u;
+        DDS_FILE* file = (DDS_FILE*)platform_read_file((char*)"assets/textures/cakez.DDS", &file_size);
+        uint32_t texture_size = file->header.Width * file->header.Height * 4u;
 
-        memcpy(context->staging_buffer.data, &data->data_begin, texture_size);
+        vk_copy_to_buffer(&context->staging_buffer, &file->data_begin, texture_size);
 
         //TODO: Assertions
-        VkImageCreateInfo image_info = {};
-        image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-        image_info.imageType = VK_IMAGE_TYPE_2D;
-        image_info.mipLevels = 1;
-        image_info.arrayLayers = 1;
-        image_info.format = VK_FORMAT_R8G8B8A8_UNORM;
-        image_info.extent = {data->header.Width, data->header.Height,   1u};
-        image_info.samples = VK_SAMPLE_COUNT_1_BIT;
-        image_info.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-        image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-        VK_CHECK(vkCreateImage(context->device, &image_info, VK_NULL_HANDLE, &context->image.image));
-
-        VkMemoryAllocateInfo alloc_info = {};
-        alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        alloc_info.allocationSize = texture_size;
-
-        {
-            VkMemoryRequirements mem_reqs;
-            vkGetImageMemoryRequirements(context->device, context->image.image, &mem_reqs);
-
-            VkPhysicalDeviceMemoryProperties gpu_mem_props;
-            vkGetPhysicalDeviceMemoryProperties(context->gpu, &gpu_mem_props);
-
-            for(uint32_t i = 0; i < gpu_mem_props.memoryTypeCount; i++)
-            {
-                if(mem_reqs.memoryTypeBits & (1 << i) &&
-                (gpu_mem_props.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-                {
-                    alloc_info.memoryTypeIndex = i;
-                }
-            }
-        }
-
-        VK_CHECK(vkAllocateMemory(context->device, &alloc_info, VK_NULL_HANDLE, &context->image.memory));
-        VK_CHECK(vkBindImageMemory(context->device, context->image.image, context->image.memory, 0));
+        context->image = vk_allocate_image(context->device, context->gpu, file->header.Width, file->header.Height, VK_FORMAT_R8G8B8A8_UNORM);
 
         VkCommandBuffer cmd;
         auto cmd_alloc = cmd_alloc_info(context->command_pool);
@@ -561,7 +491,7 @@ bool vk_init(VkContext* context, void* window) {
         
 
         VkBufferImageCopy copy_region = {};
-        copy_region.imageExtent = {data->header.Width, data->header.Height, 1u};
+        copy_region.imageExtent = {file->header.Width, file->header.Height, 1u};
         copy_region.imageSubresource.layerCount = 1;
         copy_region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
@@ -728,7 +658,7 @@ bool vk_render(VkContext* context)
     present_info.pImageIndices = &img_idx;
     present_info.pWaitSemaphores = &context->submit_semaphore;
     present_info.waitSemaphoreCount = 1;
-    VK_CHECK(vkQueuePresentKHR(context->graphics_queue, &present_info));
+    vkQueuePresentKHR(context->graphics_queue, &present_info); // TODO: VK_CHECK
 
     return true;
 }

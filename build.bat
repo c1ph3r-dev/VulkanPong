@@ -4,8 +4,8 @@ call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
 
 SET includes=/Isrc /I%VULKAN_SDK%\Include
 SET links=/link /LIBPATH:%VULKAN_SDK%\Lib vulkan-1.lib user32.lib
-SET defines=/D DEBUG /std:c++20
+SET defines=/D DEBUG 
 
 echo "Building main..."
 
-cl /EHsc /Z7 /Fe"main" %includes% %defines% src/platform/win32_platform.cpp %links%
+cl /EHsc /Z7 /Fe"main" %includes% %defines% /std:c++20 src/platform/win32_platform.cpp %links%

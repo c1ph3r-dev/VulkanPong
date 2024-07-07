@@ -5,6 +5,8 @@
     ],
     "files.associations": {
         "xiosbase": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "type_traits": "cpp",
+        "ostream": "cpp"
     }
 }

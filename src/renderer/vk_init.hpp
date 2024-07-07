@@ -41,4 +41,39 @@ VkSubmitInfo submit_info(VkCommandBuffer* cmd, uint32_t cmd_count = 1)
 
     return info;
 }
+
+VkDescriptorSetLayoutBinding layout_binding(
+    VkDescriptorType type,
+    VkShaderStageFlags shader_stages,
+    uint32_t count,
+    uint32_t binding_number)
+{
+    VkDescriptorSetLayoutBinding binding = {};
+    binding.binding = binding_number;
+    binding.descriptorCount = count;
+    binding.descriptorType = type;
+    binding.stageFlags = shader_stages;
+
+    return binding;
+}
+
+VkWriteDescriptorSet write_set(
+   VkDescriptorSet set,
+   VkDescriptorType type,
+   DescriptorInfo* descriptor_info,
+   uint32_t binding_number,
+   uint32_t count)
+{
+    VkWriteDescriptorSet write = {};
+    write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    write.dstSet = set;
+    write.pImageInfo = &descriptor_info->image_info;
+    write.pBufferInfo = &descriptor_info->buffer_info;
+    write.dstBinding = binding_number;
+    write.descriptorCount = count;
+    write.descriptorType = type;
+
+    return write;
+}
+
 #endif //VK_INIT_HPP_

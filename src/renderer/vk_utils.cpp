@@ -85,7 +85,7 @@ Buffer vk_allocate_buffer(
 
     VkMemoryAllocateInfo alloc_info = {};
     alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    alloc_info.allocationSize = buffer.size;
+    alloc_info.allocationSize = mem_reqs.size;
     alloc_info.memoryTypeIndex = vk_get_memory_type_index(gpu, mem_reqs, memory_properties);
 
     VK_CHECK(vkAllocateMemory(device, &alloc_info, VK_NULL_HANDLE, &buffer.memory));
@@ -93,7 +93,7 @@ Buffer vk_allocate_buffer(
     // Only map memory we can actually write from the cpu
     if(memory_properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
     {
-        VK_CHECK(vkMapMemory(device, buffer.memory, 0, MB(1), 0, &buffer.data));
+        VK_CHECK(vkMapMemory(device, buffer.memory, 0, mem_reqs.size, 0, &buffer.data));
     }
     
     VK_CHECK(vkBindBufferMemory(device, buffer.buffer, buffer.memory, 0));

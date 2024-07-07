@@ -64,6 +64,7 @@ void platform_update_window(HWND window)
 
 int main(){
     VkContext context = {};
+    GameState state = {};
 
     if (!platform_create_window())
     {
@@ -77,10 +78,17 @@ int main(){
         return -1;
     }
 
+    if(!init_game(&state))
+    {
+        JONO_ERROR("Failed to initialize game");
+        return -1;
+    }
+
     while (running)
     {
         platform_update_window(window);
-        if(!vk_render(&context))
+        update_game(&state);
+        if(!vk_render(&context, &state))
         {
             JONO_ERROR("Failed to render");
             return -1;

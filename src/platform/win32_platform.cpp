@@ -1,6 +1,14 @@
 #include <windows.h>
 
 #include "defines.hpp"
+
+// This is the game layer
+#include <game/game.cpp>
+
+// This is the asset layer
+#include <assets/assets.cpp>
+
+// This is the render layer
 #include <renderer/vk_renderer.cpp>
 
 #include "platform.hpp"

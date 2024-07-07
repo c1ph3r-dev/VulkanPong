@@ -12,9 +12,10 @@
 
 struct Image
 {
-   VkImage image;
-   VkDeviceMemory memory;
-   VkImageView view;
+    AssetTypeID id;
+    VkImage image;
+    VkDeviceMemory memory;
+    VkImageView view;
 };
 
 struct Buffer

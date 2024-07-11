@@ -1,4 +1,6 @@
-#include "logger.hpp"
+#include "vk_shader_util.hpp"
+
+#include <cstdlib>
 
 void vk_compile_shader(const char* shader_path, const char* spirv_path)
 {

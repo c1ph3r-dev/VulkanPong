@@ -1,22 +1,6 @@
-#include "defines.hpp"
-#include "logger.hpp"
+#include "game.hpp"
 
-#include <renderer/shared_render_types.hpp>
-
-uint32_t constexpr MAX_ENTITIES = 100u;
-
-struct Entity
-{
-    Transform pos;
-};
-
-struct GameState
-{
-    uint32_t entity_count;
-    Entity entities[MAX_ENTITIES];
-};
-
-internal Entity* create_entity(GameState* state, Transform position)
+Entity* Game::create_entity(Transform position)
 {
     Entity* e = nullptr;
     if(state->entity_count < MAX_ENTITIES)
@@ -31,20 +15,20 @@ internal Entity* create_entity(GameState* state, Transform position)
     return e;
 }
 
-bool init_game(GameState* state)
+bool Game::init()
 {
     for(uint32_t i = 0; i < 10; i++)
     {
         for (uint32_t j = 0; j < 10; j++)
         {
-            Entity* e = create_entity(state, {i * 120.f, j * 60.f, 70.f, 70.f});
+            Entity* e = create_entity({i * 120.f, j * 60.f, 70.f, 70.f});
         }
     }
 
     return true;
 }
 
-void update_game(GameState* state)
+void Game::update()
 {
     // Does nothing
     for (uint32_t i = 0; i < state->entity_count; i++)
@@ -54,5 +38,4 @@ void update_game(GameState* state)
         // This is frame rate dependent
         e->pos.x += 0.01f;
     }
-    
 }

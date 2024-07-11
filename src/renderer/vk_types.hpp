@@ -1,6 +1,7 @@
 #pragma once
 
 #include "logger.hpp"
+#include "assets/assets.hpp"
 
 #include <vulkan/vulkan.h>
 
@@ -53,5 +54,12 @@ struct DescriptorInfo
         buffer_info.offset = offset;
         buffer_info.range = range;
     }
+};
+
+struct Descriptor{
+    VkDescriptorSet descriptor_set;
+    
+    // This is used to reference the image
+    AssetTypeID id;
 };
 

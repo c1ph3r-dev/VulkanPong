@@ -8,4 +8,9 @@ SET defines=/D DEBUG /D PONGGINE
 
 echo "Building main..."
 
-cl /EHsc /Z7 /Fe"main" %includes% %defines% /std:c++20 src/platform/win32_platform.cpp %links%
+for /r %%f in (*.cpp) do (
+    echo Compiling %%f...
+    cl /EHsc /c %includes% %defines% /std:c++20 "%%f" /Fo"%%~nf.obj" 
+)
+
+link %links% /OUT:main.exe *.obj

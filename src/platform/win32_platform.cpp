@@ -2,14 +2,10 @@
 
 #include "defines.hpp"
 
-// This is the game layer
-#include <game/game.cpp>
+#include "logger.hpp"
 
-// This is the asset layer
-#include <assets/assets.cpp>
 
-// This is the render layer
-#include <renderer/vk_renderer.cpp>
+#include "renderer/renderer.hpp"
 
 #include "platform.hpp"
 
@@ -69,42 +65,44 @@ void platform_update_window(HWND window)
     }
 }
 
-
-int main(){
-    VkContext context = {};
-    GameState state = {};
+int main()
+{
+    VkRenderer renderer = {};
+    Game game = {};
 
     if (!platform_create_window())
     {
         JONO_ERROR("Failed to create a window");
-        return -1;
+        return EXIT_FAILURE;
     }
 
-    if(!vk_init(&context, window))
+    if(!renderer.init(window))
     {
         JONO_ERROR("Failed to initialize Vulkan");
-        return -1;
+        return EXIT_FAILURE;
     }
 
-    if(!init_game(&state))
+    if(!game.init())
     {
         JONO_ERROR("Failed to initialize game");
-        return -1;
+        return EXIT_FAILURE;
     }
 
     while (running)
     {
         platform_update_window(window);
-        update_game(&state);
-        if(!vk_render(&context, &state))
+        game.update();
+        if(!renderer.render(game.GetGameState()))
         {
             JONO_ERROR("Failed to render");
-            return -1;
+            return EXIT_FAILURE;
         }
     }
-    
-    return 0;
+
+    return EXIT_SUCCESS;
 }
+
+
 
 void platform_get_window_size(uint32_t* width, uint32_t* height)
 {

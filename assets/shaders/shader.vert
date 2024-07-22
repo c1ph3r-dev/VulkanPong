@@ -3,6 +3,7 @@
 #include "../../src/renderer/shared_render_types.hpp"
 
 layout(location = 0) out vec2 uv;
+layout(location = 1) out uint materialIdx;
 
 layout(set = 0, binding = 0) uniform GlobalUBO
 {
@@ -14,7 +15,12 @@ layout(set = 0, binding = 1) readonly buffer Transforms
     Transform transforms[];
 };
 
-Transform transform = transforms[gl_InstanceIndex];
+layout(push_constant) uniform block
+{
+    PushData push_data;
+};
+
+Transform transform = transforms[push_data.transformIdx + gl_InstanceIndex];
 
 vec4 vertices[4] = 
 {
@@ -37,4 +43,5 @@ void main()
     vec2 normalized_pos = 2.0 * vec2(vertices[gl_VertexIndex].x / global_data.screen_size_x, vertices[gl_VertexIndex].y / global_data.screen_size_y) - 1.0;
     gl_Position = vec4(normalized_pos, 1.0, 1.0);
     uv = vertices[gl_VertexIndex].zw;
+    materialIdx = transform.materialIdx;
 }

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "context.hpp"
-
 #include <assets/assets.hpp>
 #include <game/game.hpp>
+
+#include "context.hpp"
 
 class VkRenderer
 {
@@ -27,8 +27,8 @@ private:
     void create_buffers();
     void create_sampler();
     void create_descriptor_pool();
-    void create_descriptor_set();
-    void update_descriptor_set();
+    void create_descriptor_set(Descriptor* descriptor);
+    void update_descriptor_set(Descriptor* descriptor);
 
 public:
     VkRenderer() : context(new VkContext{}) {}
@@ -43,4 +43,7 @@ private:
 
     Image* vk_create_image(AssetTypeID id);
     Image* vk_get_image(AssetTypeID id);
+    Descriptor* vk_create_descriptor(AssetTypeID id);
+    Descriptor* vk_get_descriptor(AssetTypeID id);
+    RenderCommand* vk_add_render_command(Descriptor* descriptor);
 };

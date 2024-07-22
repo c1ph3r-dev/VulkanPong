@@ -4,6 +4,9 @@
 #include "vk_types.hpp"
 
 uint32_t constexpr MAX_IMAGES = 100;
+uint32_t constexpr MAX_DESCRIPTORS = 100;
+uint32_t constexpr MAX_RENDER_COMMANDS = 100;
+uint32_t constexpr MAX_TRANSFORMS = MAX_ENTITIES;
 
 struct VkContext
 {
@@ -18,7 +21,6 @@ struct VkContext
     VkQueue graphics_queue;
     VkSwapchainKHR swapchain;
     VkDescriptorSetLayout ds_layout;
-    VkDescriptorSet descriptor_set;
     VkSampler sampler;
     VkDescriptorPool descriptor_pool;
     VkPipelineLayout pipeline_layout;
@@ -27,8 +29,12 @@ struct VkContext
     VkCommandBuffer cmd;
     VkRenderPass render_pass;
 
+    uint32_t transform_count;
+    Transform transforms[MAX_TRANSFORMS];
+
     Buffer staging_buffer;
     Buffer transform_storage_buffer;
+    Buffer material_storage_buffer;
     Buffer global_UBO;
     Buffer index_buffer;
 
@@ -45,6 +51,12 @@ struct VkContext
 
     uint32_t image_count;
     Image images[MAX_IMAGES];
+
+    uint32_t descriptor_count;
+    Descriptor descriptors[MAX_DESCRIPTORS];
+
+    uint32_t render_command_count;
+    RenderCommand render_commands[MAX_RENDER_COMMANDS];
 
     int graphics_idx;
 };

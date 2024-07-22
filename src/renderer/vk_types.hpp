@@ -2,6 +2,7 @@
 
 #include "logger.hpp"
 #include "assets/assets.hpp"
+#include "shared_render_types.hpp"
 
 #include <vulkan/vulkan.h>
 
@@ -58,8 +59,13 @@ struct DescriptorInfo
 
 struct Descriptor{
     VkDescriptorSet descriptor_set;
-    
+
     // This is used to reference the image
     AssetTypeID id;
 };
 
+struct RenderCommand{
+    uint32_t instance_count;
+    Descriptor* descriptor;
+    PushData push_data;
+};

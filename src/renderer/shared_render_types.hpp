@@ -2,6 +2,7 @@
 #pragma once
 
 #include <type_traits>
+#include "jono_math.hpp"
 #endif
 
 struct GlobalData
@@ -14,6 +15,7 @@ struct Transform
 {
     float x, y;
     float size_x, size_y;
+    int materialIdx;
 
 #ifdef PONGGINE
     Transform() : x(0.0f), y(0.0f), size_x(1.0f), size_y(1.0f) {}
@@ -23,4 +25,12 @@ struct Transform
 
     ~Transform() = default;
 #endif
+};
+
+struct PushData{
+    int transformIdx;
+};
+
+struct MaterialData{
+    vec4 color;
 };

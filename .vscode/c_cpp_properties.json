@@ -9,8 +9,8 @@
             "defines": [
                 "DEBUG",
                 "_DEBUG",
-                "UNICODE",
-                "_UNICODE",
+                //"UNICODE",
+                //"_UNICODE",
                 "PONGGINE"
             ],
             "windowsSdkVersion": "10.0.22621.0",
